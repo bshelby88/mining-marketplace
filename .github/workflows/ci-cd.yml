@@ -194,8 +194,7 @@ jobs:
 
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            Failed jobs:
-            ${{ needs.lose.outputs.all }}
+            Failed jobs: lint, build, or test
           labels: 'ci-cd, bug'
           assignees: 'MINING GITHUB INFRA'
 
