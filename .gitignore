@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Coverage
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.DS_Store
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Temp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production
+.pub/
+
+# Tests
+*.test.ts
+*.spec.ts
