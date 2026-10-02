@@ -135,7 +135,7 @@ app.get('/llms.txt', (req, res) => {
 app.get('/sample', (req, res) => {
   res.json({
     label: 'synthetic/demo',
-    price: SESSION_START_PRICE / 10000,
+    price: SESSION_START_PRICE / 1000000, // USD ($25.50)
     payment_required: true,
     payment_scheme: 'exact',
     network: 'eip155:8453',
