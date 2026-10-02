@@ -36,6 +36,8 @@ yarn-error.log*
 # Production
 .pub/
 
-# Tests
-*.test.ts
-*.spec.ts
+# Publish output
+*.tgz
+
+# OS files
+Temp_728_*.txt
