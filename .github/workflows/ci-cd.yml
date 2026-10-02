@@ -32,7 +32,7 @@ jobs:
         run: npm run lint
 
       - name: Prettier check
-        run: npm run format -- --check
+        run: npx prettier --check "src/**/*.js"
 
   build:
     name: Build
@@ -84,6 +84,7 @@ jobs:
         run: npm test -- --coverage
 
       - name: Upload coverage report
+        if: hashFiles('coverage/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ env.CACHE_VERSION }}
@@ -110,7 +111,7 @@ jobs:
 
       - name: Verify x402 package
         run: |
-          npm list @coinbase/x402
+          npm list @x402/core @x402/evm @x402/express
           echo "x402 package verified"
 
   security-scan:
@@ -154,7 +155,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install Fly CLI
-        uses: supercharge/flyctl-actions/setup@v1
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Install dependencies
         run: npm ci
@@ -164,9 +165,11 @@ jobs:
 
       - name: Deploy to Fly.io
         id: deploy
-        uses: supercharge/flyctl-actions/deploy@v1
-        with:
-          args: deploy --image=Dockerfile
+        run: |
+          flyctl deploy --remote-only
+          echo "url=https://mining-marketplace.fly.dev" >> "$GITHUB_OUTPUT"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Show deployment info
         run: |
@@ -178,25 +181,29 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, build, test]
     if: failure()
+    permissions:
+      issues: write
     steps:
       - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        with:
-          title: 'CI/CD Pipeline Failed - Mining Marketplace'
-          body: |
-            ## CI/CD Pipeline Failed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "CI/CD Pipeline Failed - Mining Marketplace (${{ github.sha }})" \
+            --body "## CI/CD Pipeline Failed
 
-            **Repository:** ${{ github.repository }}
-            **Branch:** ${{ github.ref }}
-            **Commit:** ${{ github.sha }}
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref }}
+          **Commit:** ${{ github.sha }}
 
-            A CI/CD pipeline has failed. Please check the workflow run:
+          A CI/CD pipeline has failed. Check the workflow run:
 
-            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            Failed jobs: lint, build, or test
-          labels: 'ci-cd, bug'
-          assignees: 'MINING GITHUB INFRA'
+          Failed jobs: lint, build, or test" \
+            --label ci-cd \
+            --label bug || gh issue create --repo "$GITHUB_REPOSITORY" --title "CI/CD Pipeline Failed" --body "See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
   x402-discovery-update:
     name: Update x402 Discovery Surface
