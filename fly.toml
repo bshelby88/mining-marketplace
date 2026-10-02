@@ -11,7 +11,6 @@ primary_region = "iad"
   internal_port = 3000
   processes = ["app"]
   protocol = "tcp"
-  force_https = true
   auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 0
@@ -22,7 +21,6 @@ primary_region = "iad"
   [[services.ports]]
     port = 443
     handlers = ["tls", "http"]
-    force_https = true
   [[services.checks]]
     interval = "30s"
     timeout = "5s"
